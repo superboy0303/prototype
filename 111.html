@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>V2.5.01 版本迭代发布说明 - WMS & DAMS</title>
+  <!-- Google Fonts 引入 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
+  <style>
+    /* 核心变量与复位 */
+    :root {
+      --bg-color: #0b0c10;
+      --card-bg: rgba(22, 26, 38, 0.65);
+      --border-color: rgba(255, 255, 255, 0.06);
+      --border-hover: rgba(59, 130, 246, 0.35);
+      --text-main: #f3f4f6;
+      --text-muted: #9ca3af;
+      --primary: #3b82f6;
+      --primary-glow: rgba(59, 130, 246, 0.15);
+      --purple: #8b5cf6;
+      --purple-glow: rgba(139, 92, 246, 0.15);
+      --warning: #f59e0b;
+      --success: #10b981;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: var(--bg-color);
+      color: var(--text-main);
+      line-height: 1.6;
+      min-height: 100vh;
+      overflow-x: hidden;
+      position: relative;
+    }
+
+    /* 背景流光动画效果 */
+    body::before {
+      content: '';
+      position: absolute;
+      width: 500px;
+      height: 500px;
+      background: radial-gradient(circle, var(--primary-glow) 0%, transparent 70%);
+      top: -10%;
+      left: -10%;
+      z-index: -1;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+
+    body::after {
+      content: '';
+      position: absolute;
+      width: 600px;
+      height: 600px;
+      background: radial-gradient(circle, var(--purple-glow) 0%, transparent 70%);
+      bottom: -10%;
+      right: -10%;
+      z-index: -1;
+      filter: blur(100px);
+      pointer-events: none;
+    }
+
+    /* 容器布局 */
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 4rem 2rem;
+    }
+
+    /* 头部设计 */
+    header {
+      text-align: center;
+      margin-bottom: 3.5rem;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 0.25rem 0.75rem;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #3b82f6;
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid rgba(59, 130, 246, 0.2);
+      border-radius: 9999px;
+      margin-bottom: 1rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      animation: pulse 2s infinite;
+    }
+
+    h1 {
+      font-family: 'Outfit', sans-serif;
+      font-size: 2.75rem;
+      font-weight: 800;
+      background: linear-gradient(135deg, #ffffff 40%, #a5b4fc 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
+
+    .subtitle {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    /* 简洁 Tab 切换导航 */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 3rem;
+      background: rgba(255, 255, 255, 0.02);
+      padding: 0.35rem;
+      border-radius: 9999px;
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      max-width: fit-content;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .tab-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      padding: 0.6rem 1.5rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      border-radius: 9999px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .tab-btn:hover {
+      color: var(--text-main);
+    }
+
+    .tab-btn.active {
+      background: rgba(255, 255, 255, 0.08);
+      color: #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    /* 内容面板 */
+    .tab-panel {
+      display: none;
+      animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* 卡片设计 */
+    .grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 1.75rem;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      border-radius: 16px;
+      padding: 2rem;
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--border-hover);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2), 0 0 15px rgba(59, 130, 246, 0.1);
+    }
+
+    .card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 1.25rem;
+    }
+
+    .card-title {
+      font-family: 'Outfit', sans-serif;
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: #ffffff;
+    }
+
+    .card-tag {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+
+    .tag-interactive {
+      background: rgba(139, 92, 246, 0.15);
+      color: #a78bfa;
+      border: 1px solid rgba(139, 92, 246, 0.2);
+    }
+
+    .tag-warning {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.2);
+    }
+
+    .tag-wms {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      border: 1px solid rgba(59, 130, 246, 0.2);
+    }
+
+    /* 段落内容样式 */
+    .card-body {
+      font-size: 0.95rem;
+    }
+
+    .pain-point {
+      background: rgba(239, 68, 68, 0.05);
+      border-left: 3px solid rgba(239, 68, 68, 0.4);
+      padding: 0.75rem 1rem;
+      border-radius: 0 8px 8px 0;
+      margin-bottom: 1.25rem;
+    }
+
+    .pain-point span {
+      display: block;
+      font-weight: 600;
+      color: #f87171;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      margin-bottom: 0.25rem;
+    }
+
+    .pain-point p {
+      color: #fca5a5;
+    }
+
+    .solution-title {
+      font-weight: 600;
+      color: var(--text-main);
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .features-list {
+      list-style: none;
+    }
+
+    .features-list li {
+      position: relative;
+      padding-left: 1.25rem;
+      margin-bottom: 0.5rem;
+      color: var(--text-muted);
+    }
+
+    .features-list li::before {
+      content: '✦';
+      position: absolute;
+      left: 0;
+      color: var(--primary);
+    }
+
+    .features-list strong {
+      color: var(--text-main);
+    }
+
+    /* 警告图标样式 */
+    .warning-icon {
+      color: var(--warning);
+      font-weight: bold;
+    }
+
+    /* 针对 DAMS 页面预览的图片排版 */
+    .media-container {
+      margin-top: 1.5rem;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(0, 0, 0, 0.2);
+      padding: 0.5rem;
+      max-width: 500px;
+    }
+
+    .media-container img {
+      width: 100%;
+      height: auto;
+      border-radius: 6px;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .media-container:hover img {
+      transform: scale(1.02);
+    }
+
+    /* Bug 修复部分的扁平设计 */
+    .fixes-card {
+      background: rgba(255, 255, 255, 0.01);
+      border: 1px dashed rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .fixes-list {
+      list-style: none;
+    }
+
+    .fixes-list li {
+      padding: 0.75rem 0;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .fixes-list li:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .fix-desc {
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    .fix-desc strong {
+      color: var(--text-main);
+    }
+
+    .fix-tag {
+      font-size: 0.7rem;
+      background: rgba(16, 185, 129, 0.1);
+      color: var(--success);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      white-space: nowrap;
+    }
+
+    /* 动画定义 */
+    @keyframes pulse {
+      0% { opacity: 0.8; }
+      50% { opacity: 1; box-shadow: 0 0 10px rgba(59, 130, 246, 0.2); }
+      100% { opacity: 0.8; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* 响应式适配 */
+    @media (max-width: 768px) {
+      .container {
+        padding: 2.5rem 1rem;
+      }
+      h1 {
+        font-size: 2rem;
+      }
+      .card {
+        padding: 1.5rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <span class="badge">Release Note</span>
+      <h1>WMS & DAMS V2.5.01</h1>
+      <p class="subtitle">版本迭代升级介绍 · 简洁版说明文档</p>
+    </header>
+
+    <!-- 导航 Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" onclick="switchTab(event, 'dams')">DAMS 交互升级</button>
+      <button class="tab-btn" onclick="switchTab(event, 'wms')">WMS 规则优化</button>
+      <button class="tab-btn" onclick="switchTab(event, 'fixes')">BUG修复与改进</button>
+    </div>
+
+    <!-- DAMS 升级面板 -->
+    <div id="dams" class="tab-panel active">
+      <div class="grid">
+        <!-- 卡片一 -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">动作节点拖拽与多选体验重构</h3>
+            <span class="card-tag tag-interactive">交互体验</span>
+          </div>
+          <div class="card-body">
+            <div class="pain-point">
+              <span>原有痛点</span>
+              <p>以前使用 Shift+左键 触发离散多选不符合用户直觉，容易发生误操作，且不支持批量拖拽排序，极大地影响了配置效率。</p>
+            </div>
+            <div class="solution-title">优化方案与操作规范：</div>
+            <ul class="features-list">
+              <li><strong>离散多选：</strong>改为标准的 <code>Ctrl / Command + 左键</code> 逻辑，再次点击取消选择。</li>
+              <li><strong>连续连选：</strong>使用 <code>Shift + 左键</code>，且限定在<strong>同一父级下的同级兄弟节点</strong>之间生效。</li>
+              <li><strong>批量拖拽：</strong>支持将多选的兄弟节点批量拖动排序，拖拽时会展示半透明抓取状态和携带节点数角标（如 <code>+3</code>）。</li>
+              <li><strong>事务提交：</strong>拖拽释放后一并提交全部排序修改，避免中途断网或异常引起的顺序错乱。</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- 卡片二 -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">无效动作状态的可视化预警</h3>
+            <span class="card-tag tag-warning">功能增强</span>
+          </div>
+          <div class="card-body">
+            <div class="pain-point">
+              <span>原有痛点</span>
+              <p>当绑定的动作失效、被删或参数配置不全时，前端没有任何直观的警示，导致排查系统配置问题耗时繁琐。</p>
+            </div>
+            <div class="solution-title">优化方案与操作规范：</div>
+            <ul class="features-list">
+              <li><strong>加载主动校验：</strong>在打开事件流设计器时进行异步校验，直接在左侧导航树和画布中标记异常。</li>
+              <li><strong>黄色警示图标：</strong>对失效节点打上黄色警告点和 ⚠️ 警示图标。</li>
+              <li><strong>悬停详细提示：</strong>鼠标移到警告标志上会弹出 Tooltip，显示具体的失效原因（如“关联动作已被删除”或“缺失必填参数”）。</li>
+              <li><strong>动态清除：</strong>一旦在面板中修正配置并保存，警示图标会立刻消失。</li>
+            </ul>
+            <div class="media-container">
+              <img src="image.png" alt="无效动作预警效果预览">
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- WMS 升级面板 -->
+    <div id="wms" class="tab-panel">
+      <div class="grid">
+        <!-- WMS 卡片一 -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">WMS 2.5 PDA 作业区/库位权限控制</h3>
+            <span class="card-tag tag-wms">安全控制</span>
+          </div>
+          <div class="card-body">
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">
+              为了强化仓库现场派单的严密性，WMS 2.5 PDA 端的所有核心业务节点目前已经全面接入了<strong>工作区（作业区）库位级别的权限控制</strong>。
+            </p>
+            <ul class="features-list">
+              <li><strong>精准派单：</strong>防止作业人员操作无权限区域的库位。</li>
+              <li><strong>业务覆盖：</strong>全面应用至入库、出库、移库等所有核心PDA手持操作。</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- WMS 卡片二 -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">导入 V2.0 模板动态生成简化</h3>
+            <span class="card-tag tag-wms">配置优化</span>
+          </div>
+          <div class="card-body">
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">
+              简化数据初始化及模板配置流程，支持直接从系统数据库读取字段属性，自动导出匹配的配置模板。
+            </p>
+            <ul class="features-list">
+              <li>一键生成符合最新数据库表结构的批量导入模版。</li>
+              <li>消除人工维护字段差异，配置流程大幅精简。</li>
+            </ul>
+          </div>
+        </div>
+
+        <!-- WMS 卡片三 -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">WMS 库位混放规则增强</h3>
+            <span class="card-tag tag-wms">仓储逻辑</span>
+          </div>
+          <div class="card-body">
+            <p style="color: var(--text-muted); margin-bottom: 1rem;">
+              针对混放限制策略进行了优化，满足更细腻的货位管理规则。
+            </p>
+            <ul class="features-list">
+              <li><strong>仅混物料：</strong>支持限制为“多物料 + 单批次”的分配策略。</li>
+              <li>保证同一库位在混合存放不同SKU时，其批次属性绝对一致，利于批次追踪。</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 修复面板 -->
+    <div id="fixes" class="tab-panel">
+      <div class="fixes-card">
+        <ul class="fixes-list">
+          <li>
+            <div class="fix-desc">规范了库存调整单、移动单、冻结单、转移单中的 <strong>来源单号 SOURCE_ORDER</strong> 字段命名，修改了所有关联的业务引用。</div>
+            <span class="fix-tag">规范化</span>
+          </li>
+          <li>
+            <div class="fix-desc">在库存调整单明细编辑、转移单明细编辑页面中，新增<strong>「复制跟踪号到其他行」</strong>快捷操作。</div>
+            <span class="fix-tag">体验优化</span>
+          </li>
+          <li>
+            <div class="fix-desc">在上述单据明细编辑页面中，新增<strong>「复制库位到其他行」</strong>快捷操作，减少重复录入劳动。</div>
+            <span class="fix-tag">体验优化</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Tab 切换逻辑
+    function switchTab(event, tabId) {
+      // 移除所有活动状态
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.remove('active');
+      });
+
+      // 设置当前活动状态
+      event.currentTarget.classList.add('active');
+      document.getElementById(tabId).classList.add('active');
+    }
+  </script>
+</body>
+</html>
