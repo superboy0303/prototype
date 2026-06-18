@@ -458,7 +458,7 @@ input, button, select, textarea {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 10px 14px 10px 32px;
+  padding: 10px 14px 10px 22px;
   background: #ffffff;
   border-bottom: 1px solid #f0f1f5;
   cursor: pointer;
@@ -1413,7 +1413,7 @@ input, button, select, textarea {
 }
 .ext-system-title {
   font-size: 13.5px;
-  font-weight: 700;
+  font-weight: 500;
   color: var(--text-primary);
 }
 .ext-system__toggle {
