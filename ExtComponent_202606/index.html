@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="低代码平台 - 扩展组件管理原型">
+  <title>低代码平台 - 扩展组件管理</title>
+  <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+  <!-- ==================== 主布局 ==================== -->
+  <div class="app-layout" id="appLayout">
+    <!-- 顶部导航栏 -->
+    <header class="top-bar" id="topBar">
+      <div class="top-bar__left">
+        <div class="breadcrumb">
+          <span>入库订单</span>
+          <span>——</span>
+          <span class="active">入库订单列表页面</span>
+        </div>
+      </div>
+      <div class="top-bar__right">
+        <button class="top-btn" title="预览"><i class="ri-eye-line"></i></button>
+        <button class="top-btn" title="撤销"><i class="ri-arrow-go-back-line"></i></button>
+        <button class="top-btn" title="重做"><i class="ri-arrow-go-forward-line"></i></button>
+        <button class="top-btn primary" title="保存"><i class="ri-save-line"></i> 保存</button>
+      </div>
+    </header>
+
+    <!-- 左侧 Tab 图标栏（独立 grid item）-->
+    <nav class="left-tabs" id="leftTabs">
+      <button class="left-tab" data-tab="layers" title="图层">
+        <i class="ri-stack-line"></i>
+        <span>图层</span>
+      </button>
+      <button class="left-tab" data-tab="components" title="组件">
+        <i class="ri-layout-grid-line"></i>
+        <span>组件</span>
+      </button>
+      <button class="left-tab" data-tab="charts" title="图表">
+        <i class="ri-bar-chart-box-line"></i>
+        <span>图表</span>
+      </button>
+      <button class="left-tab active" data-tab="extensions" title="扩展">
+        <i class="ri-puzzle-line"></i>
+        <span>扩展</span>
+      </button>
+    </nav>
+
+    <!-- 左侧内容面板（独立 grid item）-->
+    <div class="left-content" id="leftContent">
+      <!-- 图层 -->
+      <div class="tab-pane" data-pane="layers">
+        <div class="pane-placeholder">
+          <i class="ri-stack-line"></i>
+          <p>图层面板</p>
+        </div>
+      </div>
+      <!-- 组件 -->
+      <div class="tab-pane" data-pane="components">
+        <div class="pane-placeholder">
+          <i class="ri-layout-grid-line"></i>
+          <p>组件面板</p>
+        </div>
+      </div>
+      <!-- 图表 -->
+      <div class="tab-pane" data-pane="charts">
+        <div class="pane-placeholder">
+          <i class="ri-bar-chart-box-line"></i>
+          <p>图表面板</p>
+        </div>
+      </div>
+
+      <!-- ========== 扩展面板（核心） ========== -->
+      <div class="tab-pane active" data-pane="extensions">
+        <!-- 搜索框 -->
+        <div class="ext-search" id="extSearch">
+          <input type="text" id="extSearchInput" placeholder="搜索组件、分类或系统名称" autocomplete="off">
+          <button class="ext-search__clear hidden" id="extSearchClear" title="清空搜索">
+            <i class="ri-close-line"></i>
+          </button>
+        </div>
+
+        <!-- 工具栏（导入/导出） -->
+        <div class="ext-toolbar" id="extToolbar">
+          <button class="ext-tool-btn" id="btnExport" title="批量导出组件"><i class="ri-download-2-line"></i> 导出</button>
+          <button class="ext-tool-btn" id="btnImport" title="导入组件JSON"><i class="ri-upload-2-line"></i> 导入</button>
+          <button class="ext-tool-btn primary" id="btnSaveDb" title="保存至数据库"><i class="ri-database-2-line"></i>
+            保存</button>
+          <input type="file" id="importFileInput" accept=".json" class="hidden">
+        </div>
+
+        <!-- 搜索结果 -->
+        <div class="ext-search-results hidden" id="extSearchResults">
+          <div class="search-result-list" id="searchResultList"></div>
+        </div>
+
+        <!-- 分类组件列表 -->
+        <div class="ext-categories" id="extCategories">
+          <!-- 由JS动态渲染 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 中间画布 -->
+    <main class="canvas-area" id="canvasArea">
+      <div class="canvas-wrapper">
+        <div class="canvas" id="canvas">
+          <div class="canvas-drop-hint" id="canvasDropHint">
+            <i class="ri-drag-drop-line"></i>
+            <p>拖拽组件至此区域</p>
+          </div>
+          <!-- 模拟画布内容 -->
+          <div class="canvas-mock-content">
+            <div class="mock-toolbar">
+              <div class="mock-btn"><i class="ri-search-line"></i> 查询</div>
+              <div class="mock-btn"><i class="ri-add-line"></i> 新增</div>
+              <div class="mock-btn danger"><i class="ri-delete-bin-line"></i> 删除</div>
+              <div class="mock-btn"><i class="ri-download-line"></i> 导出</div>
+            </div>
+            <div class="mock-table">
+              <div class="mock-table-head">
+                <span>单据编号</span><span>仓库</span><span>供应商</span><span>状态</span><span>创建时间</span>
+              </div>
+              <div class="mock-table-row">
+                <span>RK20240601001</span><span>主仓库</span><span>供应商A</span>
+                <span class="tag blue">已提交</span><span>2024-06-01</span>
+              </div>
+              <div class="mock-table-row">
+                <span>RK20240601002</span><span>副仓库</span><span>供应商B</span>
+                <span class="tag green">已完成</span><span>2024-06-02</span>
+              </div>
+              <div class="mock-table-row">
+                <span>RK20240601003</span><span>主仓库</span><span>供应商C</span>
+                <span class="tag orange">待审核</span><span>2024-06-03</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- 右侧属性面板 -->
+    <aside class="right-panel" id="rightPanel">
+      <!-- 顶部小图标 -->
+      <div class="right-panel__icons">
+        <button class="rp-icon-btn" title="布局"><i class="ri-layout-grid-line"></i></button>
+        <button class="rp-icon-btn" title="组件树"><i class="ri-node-tree"></i></button>
+        <button class="rp-icon-btn active" title="属性"><i class="ri-settings-3-line"></i></button>
+        <button class="rp-icon-btn save-ext-icon" id="openSaveExtDialog" title="保存为自定义扩展组件"><i
+            class="ri-puzzle-line"></i></button>
+      </div>
+      <div class="right-panel__tabs">
+        <button class="rp-tab active">属性</button>
+        <button class="rp-tab">样式</button>
+        <button class="rp-tab">交互</button>
+      </div>
+      <div class="right-panel__content">
+        <!-- 组件属性区 -->
+        <div class="prop-section">
+          <div class="prop-row">
+            <label>ID</label>
+            <input type="text" value="uiButton_h1egc8" readonly class="prop-input readonly">
+          </div>
+          <div class="prop-row">
+            <label>类型</label>
+            <input type="text" value="uiButton" readonly class="prop-input readonly">
+          </div>
+          <div class="prop-row">
+            <label>组件名称</label>
+            <input type="text" value="删除" class="prop-input">
+          </div>
+        </div>
+
+        <div class="prop-section">
+          <div class="prop-row">
+            <label>图标选择器</label>
+            <div class="icon-preview-row">
+              <div class="icon-mini-preview"><i class="ri-delete-bin-line"></i></div>
+              <button class="icon-clear-btn" title="清除"><i class="ri-close-circle-line"></i></button>
+            </div>
+          </div>
+          <div class="prop-row">
+            <label>名称</label>
+            <input type="text" value="删除" class="prop-input">
+          </div>
+          <div class="prop-row">
+            <label>颜色类型</label>
+            <select class="prop-select">
+              <option>红色</option>
+              <option>蓝色</option>
+              <option>绿色</option>
+              <option>默认</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="prop-section">
+          <div class="prop-row switch-row">
+            <label>禁用</label>
+            <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+          </div>
+          <div class="prop-row switch-row">
+            <label>隐藏</label>
+            <label class="switch"><input type="checkbox"><span class="slider"></span></label>
+          </div>
+        </div>
+
+        <div class="prop-section">
+          <div class="prop-row link-row">
+            <label>高级配置</label>
+            <i class="ri-arrow-right-s-line"></i>
+          </div>
+          <div class="prop-row link-row">
+            <label>条件指令</label>
+            <i class="ri-arrow-right-s-line"></i>
+          </div>
+        </div>
+      </div>
+    </aside>
+  </div>
+
+  <!-- ==================== 保存为扩展对话框 ==================== -->
+  <div class="modal-overlay hidden" id="saveExtOverlay">
+    <div class="modal" id="saveExtModal">
+      <div class="modal__header">
+        <h3>保存为扩展组件</h3>
+        <button class="modal__close" id="closeSaveExtDialog"><i class="ri-close-line"></i></button>
+      </div>
+      <div class="modal__body">
+        <!-- 扩展名称 -->
+        <div class="form-group">
+          <label class="form-label required">扩展名称</label>
+          <input type="text" class="form-input" id="extName" placeholder="请输入扩展组件名称" maxlength="10">
+        </div>
+
+        <!-- 系统 -->
+        <div class="form-group">
+          <label class="form-label required">系统</label>
+          <div class="combo-select" id="comboSystemSelect">
+            <input type="text" class="form-input" id="extSystem" placeholder="选择或输入系统简称" autocomplete="off">
+            <button class="combo-select__toggle" id="comboSystemToggle">
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="combo-dropdown hidden" id="comboSystemDropdown">
+              <div class="combo-dropdown__list" id="comboSystemList">
+                <!-- 由JS动态渲染 -->
+              </div>
+              <div class="combo-dropdown__hint">
+                <i class="ri-information-line"></i> 可直接输入新增系统
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 分类 -->
+        <div class="form-group">
+          <label class="form-label required">分类</label>
+          <div class="combo-select" id="comboSelect">
+            <input type="text" class="form-input" id="extCategory" placeholder="选择或输入分类名称" autocomplete="off">
+            <button class="combo-select__toggle" id="comboToggle">
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+            <div class="combo-dropdown hidden" id="comboDropdown">
+              <div class="combo-dropdown__list" id="comboList">
+                <!-- 由JS动态渲染 -->
+              </div>
+              <div class="combo-dropdown__hint">
+                <i class="ri-information-line"></i> 可直接输入新增分类
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 图标选择 -->
+        <div class="form-group">
+          <label class="form-label required">图标</label>
+          <div class="icon-selector" id="iconSelector">
+            <div class="icon-selector__preview" id="iconPreview">
+              <i class="ri-apps-line" id="selectedIconDisplay"></i>
+            </div>
+            <button class="icon-selector__btn" id="openIconPicker">
+              选择图标
+              <i class="ri-arrow-down-s-line"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="modal-btn cancel" id="cancelSaveExt">取消</button>
+        <button class="modal-btn confirm" id="confirmSaveExt">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 批量导出模态框 ==================== -->
+  <div class="modal-overlay hidden" id="exportOverlay">
+    <div class="modal modal--large" id="exportModal">
+      <div class="modal__header">
+        <h3><i class="ri-download-2-line"></i> 批量导出</h3>
+        <button class="modal__close" id="closeExportDialog"><i class="ri-close-line"></i></button>
+      </div>
+      <div class="modal__body">
+        <!-- 搜索过滤栏 -->
+        <div class="export-filters">
+          <i class="ri-search-line"></i>
+          <input type="text" id="exportSearchInput" placeholder="搜索组件、分类或系统名称" autocomplete="off">
+        </div>
+        <div class="table-container">
+          <table class="export-table">
+            <thead>
+              <tr>
+                <th width="40"><input type="checkbox" id="exportSelectAll" checked></th>
+                <th>系统</th>
+                <th>分类</th>
+                <th>组件名称</th>
+                <th>修改人</th>
+                <th>修改时间</th>
+              </tr>
+            </thead>
+            <tbody id="exportTableBody">
+              <!-- 由JS动态渲染 -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <span class="export-selected-count" id="exportSelectedCount">已选择 <strong class="highlight-count">0</strong> 个组件</span>
+        <button class="modal-btn cancel" id="cancelExport">取消</button>
+        <button class="modal-btn confirm" id="confirmExport">导出</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 删除确认模态框 ==================== -->
+  <div class="modal-overlay hidden" id="deleteConfirmOverlay">
+    <div class="modal modal--small" id="deleteConfirmModal">
+      <div class="modal__header">
+        <h3>确认删除</h3>
+        <button class="modal__close" id="closeDeleteConfirmDialog"><i class="ri-close-line"></i></button>
+      </div>
+      <div class="modal__body">
+        <div class="confirm-message">
+          <i class="ri-error-warning-fill warning-icon"></i>
+          <p>确定要删除吗？</p>
+        </div>
+      </div>
+      <div class="modal__footer">
+        <button class="modal-btn cancel" id="cancelDeleteConfirm">取消</button>
+        <button class="modal-btn confirm danger" id="confirmDelete">确认删除</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 编辑重命名模态框 ==================== -->
+  <div class="modal-overlay hidden" id="editModalOverlay">
+    <div class="modal modal--small" id="editModal">
+      <div class="modal__header">
+        <h3 id="editModalTitle">编辑信息</h3>
+        <button class="modal__close" id="closeEditDialog"><i class="ri-close-line"></i></button>
+      </div>
+      <div class="modal__body" id="editModalBody">
+        <!-- 由JS动态生成表单内容 -->
+      </div>
+      <div class="modal__footer">
+        <button class="modal-btn cancel" id="cancelEdit">取消</button>
+        <button class="modal-btn confirm" id="confirmEdit">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 图标选择器浮层（独立于对话框） ==================== -->
+  <div class="icon-picker-popover hidden" id="iconPicker">
+    <div class="icon-picker">
+      <div class="icon-picker__search">
+        <input type="text" id="iconSearchInput" placeholder="搜索图标名称...">
+      </div>
+      <div class="icon-picker__tabs" id="iconPickerTabs">
+        <button class="icon-tab active" data-icon-category="system">系统</button>
+        <button class="icon-tab" data-icon-category="media">媒体</button>
+        <button class="icon-tab" data-icon-category="people">人物</button>
+        <button class="icon-tab" data-icon-category="comm">通讯</button>
+        <button class="icon-tab" data-icon-category="business">企业</button>
+        <button class="icon-tab" data-icon-category="arrow">箭头</button>
+      </div>
+      <div class="icon-picker__grid" id="iconGrid">
+        <!-- 由JS动态渲染图标 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== Toast 通知 ==================== -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="app.js"></script>
+</body>
+
+</html>
