@@ -8,9 +8,69 @@
   <title>低代码平台 - 扩展组件管理</title>
   <link href="https://cdn.jsdelivr.net/npm/remixicon@4.1.0/fonts/remixicon.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
+
+  <style>
+    #passwordGate {
+      position: fixed; inset: 0; z-index: 99999;
+      display: flex; align-items: center; justify-content: center;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      font-family: 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+    }
+    #passwordGate.hidden { display: none; }
+    .pwd-box {
+      background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12);
+      border-radius: 16px; padding: 48px 40px 40px; width: 380px;
+      text-align: center; backdrop-filter: blur(12px);
+      box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+    }
+    .pwd-icon { width: 64px; height: 64px; margin: 0 auto 20px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      border-radius: 16px; display: flex; align-items: center; justify-content: center;
+      font-size: 28px; color: #fff; }
+    .pwd-title { color: #f1f5f9; font-size: 20px; font-weight: 600; margin-bottom: 6px; }
+    .pwd-sub { color: #94a3b8; font-size: 13px; margin-bottom: 28px; }
+    .pwd-input-wrap { position: relative; margin-bottom: 16px; }
+    .pwd-input {
+      width: 100%; padding: 12px 44px 12px 16px;
+      border: 1px solid rgba(255,255,255,0.15); border-radius: 10px;
+      background: rgba(255,255,255,0.06); color: #f1f5f9; font-size: 15px;
+      outline: none; box-sizing: border-box; transition: border-color 0.2s;
+    }
+    .pwd-input:focus { border-color: #6366f1; }
+    .pwd-input::placeholder { color: #64748b; }
+    .pwd-toggle {
+      position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+      background: none; border: none; color: #64748b; cursor: pointer; font-size: 18px;
+    }
+    .pwd-btn {
+      width: 100%; padding: 12px; border: none; border-radius: 10px;
+      background: linear-gradient(135deg, #3b82f6, #6366f1);
+      color: #fff; font-size: 15px; font-weight: 600; cursor: pointer; transition: opacity 0.2s;
+    }
+    .pwd-btn:hover { opacity: 0.9; }
+    .pwd-error { color: #f87171; font-size: 13px; margin-top: 12px; display: none; }
+    .pwd-error.show { display: block; }
+    #appLayout { visibility: hidden; }
+    body.granted #appLayout { visibility: visible; }
+  </style>
 </head>
 
 <body>
+
+  <div id="passwordGate">
+    <div class="pwd-box">
+      <div class="pwd-icon">&#128274;</div>
+      <div class="pwd-title">访问验证</div>
+      <div class="pwd-sub">请输入访问密码以查看原型</div>
+      <div class="pwd-input-wrap">
+        <input type="password" class="pwd-input" id="pwdInput" placeholder="请输入密码" autocomplete="off">
+        <button class="pwd-toggle" id="pwdToggle" type="button">&#128065;</button>
+      </div>
+      <button class="pwd-btn" id="pwdSubmit">进入</button>
+      <div class="pwd-error" id="pwdError">密码错误，请重试</div>
+    </div>
+  </div>
+
   <!-- ==================== 主布局 ==================== -->
   <div class="app-layout" id="appLayout">
     <!-- 顶部导航栏 -->
@@ -396,6 +456,31 @@
   <div class="toast-container" id="toastContainer"></div>
 
   <script src="app.js"></script>
+
+  <script>
+    (function(){
+      const CORRECT = '2026';
+      const gate = document.getElementById('passwordGate');
+      const input = document.getElementById('pwdInput');
+      const btn = document.getElementById('pwdSubmit');
+      const err = document.getElementById('pwdError');
+      const toggle = document.getElementById('pwdToggle');
+      function check(){
+        if(input.value === CORRECT){
+          gate.classList.add('hidden');
+          document.body.classList.add('granted');
+        } else {
+          err.classList.add('show');
+          input.focus();
+        }
+      }
+      btn.addEventListener('click', check);
+      input.addEventListener('keydown', function(e){ err.classList.remove('show'); if(e.key==='Enter') check(); });
+      toggle.addEventListener('click', function(){ var t = input.type==='password'?'text':'password'; input.type=t; toggle.textContent=t==='password'?'&#128065;':'&#128274;'; });
+      input.focus();
+    })();
+  </script>
+
 </body>
 
 </html>
